@@ -1,56 +1,68 @@
-@description('Deploys an Azure Container Registry')
-param containerRegistryName string
-param location string = 'eastus'
-param acrAdminUserEnabled bool = true
+param userAlias string = 'sperilla'
+param location string = resourceGroup().location
 
-module containerRegistry 'modules/containerRegistry.bicep' = {
-  name: 'deployContainerRegistry'
-  params: {
-    name: containerRegistryName
-    location: location
-    acrAdminUserEnabled: acrAdminUserEnabled
-  }
-}
 
-@description('Deploys an Azure App Service Plan for Linux')
-param appServicePlanName string
-module appServicePlan './modules/appService.bicep' = {
-  name: 'deployAppServicePlan'
+// App Service Plan
+param appServicePlanName string 
+
+module appServicePlan 'modules/appService.bicep' = {
+  name: 'appServicePlan-${userAlias}'
   params: {
     name: appServicePlanName
     location: location
-    sku: {
-      capacity: 1
-      family: 'B'
-      name: 'B1'
-      size: 'B1'
-      tier: 'Basic'
-    }
-    kind: 'Linux'
-    reserved: true
   }
 }
 
-@description('Deploys an Azure Web App for Linux Containers')
-param webAppName string
-param containerRegistryImageName string
-param containerRegistryImageVersion string
-module webApp './modules/webApp.bicep' = {
-  name: 'deployWebApp'
+// Key Vault
+// param keyVaultName string
+// param keyVaultRoleAssignments array
+
+// // module keyVault 'modules/key-vault.bicep' = {
+// //   name: 'keyVault-${userAlias}'
+// //   params: {
+// //     name: keyVaultName
+// //     location: location
+// //     roleAssignments: keyVaultRoleAssignments
+// //   }
+// // }
+
+// Container Registry
+param containerRegistryName string
+param containerRegistryUsernameSecretName string 
+param containerRegistryPassword0SecretName string 
+param containerRegistryPassword1SecretName string 
+
+module containerRegistry 'modules/containerRegistry.bicep' = {
+  name: 'containerRegistry-${userAlias}'
   params: {
-    name: webAppName
+    name: containerRegistryName
     location: location
-    kind: 'app'
-    serverFarmResourceId: appServicePlan.outputs.serverFarmResourceId
-    siteConfig: {
-      linuxFxVersion: 'DOCKER|${containerRegistryName}.azurecr.io/${containerRegistryImageName}:${containerRegistryImageVersion}'
-      appCommandLine: ''
-    }
-    appSettingsKeyValuePairs: {
-      WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-      DOCKER_REGISTRY_SERVER_URL: 'https://${containerRegistryName}.azurecr.io'
-      DOCKER_REGISTRY_SERVER_USERNAME: containerRegistry.outputs.adminUsername
-      DOCKER_REGISTRY_SERVER_PASSWORD: containerRegistry.outputs.adminPassword
-    }
+    // keyVaultResourceId: keyVault.outputs.keyVaultId
+    usernameSecretName: containerRegistryUsernameSecretName
+    password0SecretName: containerRegistryPassword0SecretName
+    password1SecretName: containerRegistryPassword1SecretName
+  }
+}
+
+// Container App Service
+param containerName string
+param dockerRegistryImageName string
+param dockerRegistryImageVersion string
+
+// resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01'existing = {
+//   name: keyVaultName
+// }
+
+module containerAppService 'modules/webApp.bicep' = {
+  name: 'containerAppService-${userAlias}'
+  params: {
+    name: containerName
+    location: location
+    appServicePlanId: appServicePlan.outputs.id
+    registryName: containerRegistryName
+    registryImageName: dockerRegistryImageName
+    registryImageVersion: dockerRegistryImageVersion
+    // registryServerUserName: keyVaultReference.getSecret(containerRegistryUsernameSecretName)
+    // registryServerPassword: keyVaultReference.getSecret(containerRegistryPassword0SecretName)
   }
 }
