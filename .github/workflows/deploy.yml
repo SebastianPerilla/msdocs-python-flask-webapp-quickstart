@@ -11,7 +11,7 @@ on:
 
 env:
   DOCKER_REGISTRY_SERVER_URL: sperilla.azurecr.io
-  # KEY_VAULT_NAME: sperilla-kv
+  KEY_VAULT_NAME: sperilla-kv
   IMAGE_NAME: sperilla-dockerimg
   APP_SERVICE_NAME: sperilla-appservice
   RESOURCE_GROUP_DEV: BCSAI2024-DEVOPS-STUDENTS-A-DEV
@@ -28,6 +28,7 @@ jobs:
       - name: Upload Bicep build artifact
         uses: actions/upload-artifact@v3
         with:
+          scope: /subscriptions/${{ env.SUBSCRIPTION_ID_DEV }}/resourceGroups/${{ env.RESOURCE_GROUP_DEV }}
           name: bicep-build
           path: ./main.bicep
 

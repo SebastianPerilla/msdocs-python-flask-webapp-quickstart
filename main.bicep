@@ -14,17 +14,17 @@ module appServicePlan 'modules/appService.bicep' = {
 }
 
 // Key Vault
-// param keyVaultName string
-// param keyVaultRoleAssignments array
+param keyVaultName string
+param keyVaultRoleAssignments array
 
-// // module keyVault 'modules/key-vault.bicep' = {
-// //   name: 'keyVault-${userAlias}'
-// //   params: {
-// //     name: keyVaultName
-// //     location: location
-// //     roleAssignments: keyVaultRoleAssignments
-// //   }
-// // }
+module keyVault 'modules/keyVault.bicep' = {
+  name: 'keyVault-${userAlias}'
+  params: {
+    name: keyVaultName
+    location: location
+    roleAssignments: keyVaultRoleAssignments
+  }
+}
 
 // Container Registry
 param containerRegistryName string
@@ -37,7 +37,7 @@ module containerRegistry 'modules/containerRegistry.bicep' = {
   params: {
     name: containerRegistryName
     location: location
-    // keyVaultResourceId: keyVault.outputs.keyVaultId
+    keyVaultResourceId: keyVault.outputs.keyVaultId
     usernameSecretName: containerRegistryUsernameSecretName
     password0SecretName: containerRegistryPassword0SecretName
     password1SecretName: containerRegistryPassword1SecretName
@@ -49,9 +49,9 @@ param containerName string
 param dockerRegistryImageName string
 param dockerRegistryImageVersion string
 
-// resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01'existing = {
-//   name: keyVaultName
-// }
+resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01'existing = {
+  name: keyVaultName
+}
 
 module containerAppService 'modules/webApp.bicep' = {
   name: 'containerAppService-${userAlias}'
@@ -62,7 +62,7 @@ module containerAppService 'modules/webApp.bicep' = {
     registryName: containerRegistryName
     registryImageName: dockerRegistryImageName
     registryImageVersion: dockerRegistryImageVersion
-    // registryServerUserName: keyVaultReference.getSecret(containerRegistryUsernameSecretName)
-    // registryServerPassword: keyVaultReference.getSecret(containerRegistryPassword0SecretName)
+    registryServerUserName: keyVaultReference.getSecret(containerRegistryUsernameSecretName)
+    registryServerPassword: keyVaultReference.getSecret(containerRegistryPassword0SecretName)
   }
 }
