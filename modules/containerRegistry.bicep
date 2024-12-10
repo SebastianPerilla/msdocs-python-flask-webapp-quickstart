@@ -23,37 +23,37 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   }
 }
 
-// Reference the existing Key Vault
-resource adminCredentialsKeyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
-  name: last(split(keyVaultResourceId, '/')) // Extract the name from the resource ID
-}
+// // Reference the existing Key Vault
+// resource adminCredentialsKeyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+//   name: last(split(keyVaultResourceId, '/')) // Extract the name from the resource ID
+// }
 
 // Store the admin username in Key Vault
-resource secretAdminUserName 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
-  name: usernameSecretName
-  parent: adminCredentialsKeyVault
-  properties: {
-    value: containerRegistry.listCredentials().username
-  }
-}
+// resource secretAdminUserName 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+//   name: usernameSecretName
+//   parent: adminCredentialsKeyVault
+//   properties: {
+//     value: containerRegistry.listCredentials().username
+//   }
+// }
 
 // Store the first admin password in Key Vault
-resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
-  name: password0SecretName
-  parent: adminCredentialsKeyVault
-  properties: {
-    value: containerRegistry.listCredentials().passwords[0].value
-  }
-}
+// resource secretAdminUserPassword0 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+//   name: password0SecretName
+//   parent: adminCredentialsKeyVault
+//   properties: {
+//     value: containerRegistry.listCredentials().passwords[0].value
+//   }
+// }
 
 // Store the second admin password in Key Vault
-resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
-  name: password1SecretName
-  parent: adminCredentialsKeyVault
-  properties: {
-    value: containerRegistry.listCredentials().passwords[1].value
-  }
-}
+// resource secretAdminUserPassword1 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+//   name: password1SecretName
+//   parent: adminCredentialsKeyVault
+//   properties: {
+//     value: containerRegistry.listCredentials().passwords[1].value
+//   }
+// }
 
 // Output values for verification (optional, avoid exposing sensitive data)
 output containerRegistryName string = containerRegistry.name
