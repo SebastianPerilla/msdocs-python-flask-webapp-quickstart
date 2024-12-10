@@ -7,7 +7,11 @@ param containerRegistryImageName string
 param containerRegistryImageVersion string
 param dockerRegistryServerUrl string
 param dockerRegistryServerUsername string
+@secure()
 param dockerRegistryServerPassword string
+
+
+
 
 var serverFarmResourceId = resourceId('Microsoft.Web/serverfarms', appServicePlanName)
 
