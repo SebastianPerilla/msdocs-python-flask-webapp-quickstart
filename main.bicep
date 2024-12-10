@@ -13,19 +13,6 @@ module appServicePlan 'modules/appService.bicep' = {
   }
 }
 
-// Key Vault
-// param keyVaultName string
-// param keyVaultRoleAssignments array
-
-// module keyVault 'modules/keyVault.bicep' = {
-//   name: 'keyVault-${userAlias}'
-//   params: {
-//     name: keyVaultName
-//     location: location
-//     roleAssignments: keyVaultRoleAssignments
-//   }
-// }
-
 // Container Registry
 param containerRegistryName string
 param containerRegistryUsernameSecretName string 
@@ -61,3 +48,4 @@ module containerAppService 'modules/webApp.bicep' = {
     registryImageVersion: dockerRegistryImageVersion
   }
 }
+

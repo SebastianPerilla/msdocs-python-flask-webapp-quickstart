@@ -10,6 +10,7 @@ param registryServerPassword string
 param registryImageName string
 param registryImageVersion string
 param appSettings array = []
+
 var dockerAppSettings = [
   { name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE', value: 'false' }
   { name: 'DOCKER_REGISTRY_SERVER_URL', value: 'https://${registryName}.azurecr.io' }
