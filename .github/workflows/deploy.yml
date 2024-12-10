@@ -51,7 +51,7 @@ jobs:
           subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
           resourceGroupName: ${{ env.RESOURCE_GROUP_DEV }}
           template: ./main.bicep
-          parameters: ./parameters.json
+          parameters: ./parameters.bicepparam
 
   build-push-image:
     runs-on: ubuntu-latest
