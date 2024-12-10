@@ -1,19 +1,24 @@
 @description('Deploys an Azure Container Registry')
-module containerRegistry './modules/containerRegistry.bicep' = {
+param containerRegistryName string
+param location string = 'eastus'
+param acrAdminUserEnabled bool = true
+
+module containerRegistry 'modules/containerRegistry.bicep' = {
   name: 'deployContainerRegistry'
   params: {
-    name: 'myACR'
-    location: 'eastus'
-    acrAdminUserEnabled: true
+    name: containerRegistryName
+    location: location
+    acrAdminUserEnabled: acrAdminUserEnabled
   }
 }
 
 @description('Deploys an Azure App Service Plan for Linux')
+param appServicePlanName string
 module appServicePlan './modules/appService.bicep' = {
   name: 'deployAppServicePlan'
   params: {
-    name: 'myAppServicePlan'
-    location: 'eastus'
+    name: appServicePlanName
+    location: location
     sku: {
       capacity: 1
       family: 'B'
@@ -27,22 +32,25 @@ module appServicePlan './modules/appService.bicep' = {
 }
 
 @description('Deploys an Azure Web App for Linux Containers')
+param webAppName string
+param containerRegistryImageName string
+param containerRegistryImageVersion string
 module webApp './modules/webApp.bicep' = {
   name: 'deployWebApp'
   params: {
-    name: 'myWebApp'
-    location: 'eastus'
+    name: webAppName
+    location: location
     kind: 'app'
     serverFarmResourceId: appServicePlan.outputs.serverFarmResourceId
     siteConfig: {
-      linuxFxVersion: 'DOCKER|myacr.azurecr.io/myimage:latest'
+      linuxFxVersion: 'DOCKER|${containerRegistryName}.azurecr.io/${containerRegistryImageName}:${containerRegistryImageVersion}'
       appCommandLine: ''
     }
     appSettingsKeyValuePairs: {
       WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-      DOCKER_REGISTRY_SERVER_URL: 'https://myacr.azurecr.io'
-      DOCKER_REGISTRY_SERVER_USERNAME: 'myacrusername'
-      DOCKER_REGISTRY_SERVER_PASSWORD: 'myacrpassword'
+      DOCKER_REGISTRY_SERVER_URL: 'https://${containerRegistryName}.azurecr.io'
+      DOCKER_REGISTRY_SERVER_USERNAME: containerRegistry.outputs.adminUsername
+      DOCKER_REGISTRY_SERVER_PASSWORD: containerRegistry.outputs.adminPassword
     }
   }
 }

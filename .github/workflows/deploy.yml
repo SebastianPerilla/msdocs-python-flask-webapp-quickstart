@@ -24,6 +24,6 @@ jobs:
         azcliversion: 2.41.0
         inlineScript: |
           az deployment group create \
-            --resource-group aguadamillas_students_1 \
-            --template-file infrastructure/main.bicep \
-            --parameters @infrastructure/parameters.json
+            --resource-group BCSAI2024-DEVOPS-STUDENTS-A-DEV \
+            --template-file main.bicep \
+            --parameters @parameters.json

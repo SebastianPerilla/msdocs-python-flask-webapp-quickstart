@@ -3,16 +3,16 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "containerRegistryName": {
-      "value": "myACR"
+      "value": "sebasACR"
     },
     "appServicePlanName": {
-      "value": "myAppServicePlan"
+      "value": "sebasAppServicePlan"
     },
     "webAppName": {
-      "value": "myWebApp"
+      "value": "sebasWebApp"
     },
     "containerRegistryImageName": {
-      "value": "myimage"
+      "value": "sebasimage"
     },
     "containerRegistryImageVersion": {
       "value": "latest"
