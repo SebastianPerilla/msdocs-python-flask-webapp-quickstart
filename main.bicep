@@ -2,7 +2,7 @@
 param containerRegistryName string = 'sperilla_containerRegistry' // Container Registry Name
 param appServicePlanName string = 'sperilla_AppServicePlan' // App Service Plan Name
 param location string = 'eastus' // Desired Azure Region
-param WebAppName string = 'sperilla_WebApp' // Web App Name
+param webAppName string = 'sperilla_WebApp' // Web App Name
 
 // Azure Container Registry Module
 module containerRegistry 'modules/containerRegistry.bicep' = {
@@ -33,9 +33,9 @@ module appServicePlan 'modules/appService.bicep' = {
 
 // Pass appSettings as an array
 module webApp 'modules/webApp.bicep' = {
-  name: 'deployWebApp'
+  name: 'deploywebApp'
   params: {
-    name: WebAppName
+    name: webAppName
     location: location
     kind: 'app'
     serverFarmResourceId: appServicePlan.outputs.id
