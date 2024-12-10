@@ -1,20 +1,16 @@
-param location string = resourceGroup().location
-param name string
-param sku string = 'B1'
+param dmoneyAppServicePlanName string
+param location string
+param sku object
+param kind string
+param reserved bool
 
-resource appServicePlan 'Microsoft.Web/serverFarms@2022-03-01' = {
-  name: name
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: dmoneyAppServicePlanName
   location: location
-  sku: {
-    name: sku
-    capacity: 1
-    family: 'B'
-    size: 'B1'
-    tier: 'Basic'
-  }
-  kind: 'linux'
+  sku: sku
+  kind: kind
   properties: {
-    reserved: true
+    reserved: reserved
   }
 }
 

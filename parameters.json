@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2020-10-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "enviromentType": {
+        "value": "dev"
+      },
+      "dmoneycontainerRegistryName": {
+        "value": "sperilla_containerRegistry"
+      },
+      "containerRegistryImageName": {
+        "value": "sperilla_dockerimg"
+      },
+      "containerRegistryImageVersion": {
+        "value": "v1"
+      },
+      "appServicePlanName": {
+        "value": "sperilla_AppServicePlan"
+      },
+      "webAppName": {
+        "value": "sperilla_WebApp"
+      },
+      "location": {
+        "value": "East US"
+      }
+    }
+  }
+  

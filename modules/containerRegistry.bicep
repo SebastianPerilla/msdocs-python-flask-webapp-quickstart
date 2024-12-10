@@ -1,27 +1,17 @@
-param name string
-param location string = resourceGroup().location
-param sku string = 'Basic'
-param adminUserEnabled bool = true
+param dmoneyContainerRegistryName string
+param location string
 
-#disable-next-line secure-secrets-in-params
-param usernameSecretName string
-#disable-next-line secure-secrets-in-params
-param password0SecretName string
-#disable-next-line secure-secrets-in-params
-param password1SecretName string
-
-
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
-  name: name
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' = {
+  name: dmoneyContainerRegistryName
   location: location
   sku: {
-    name: sku
+    name: 'Basic'
   }
   properties: {
-    adminUserEnabled: adminUserEnabled
+    adminUserEnabled: true
   }
 }
 
-// Output values for verification (optional, avoid exposing sensitive data)
-output containerRegistryName string = containerRegistry.name
-output containerRegistryLoginServer string = containerRegistry.properties.loginServer
+output loginServer string = containerRegistry.properties.loginServer
+output username string = listCredentials(containerRegistry.id, '2021-12-01-preview').username
+output password string = listCredentials(containerRegistry.id, '2021-12-01-preview').passwords[0].value

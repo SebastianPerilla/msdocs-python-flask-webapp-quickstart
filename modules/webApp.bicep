@@ -1,33 +1,22 @@
 param name string
-param location string = resourceGroup().location
-param appServicePlanId string
+param location string
+param kind string
+param serverFarmResourceId string
+param siteConfig object
+param appSettingsArray array // Accept the array
 
-param registryName string
-@secure()
-param registryServerUserName string
-@secure()
-param registryServerPassword string
-param registryImageName string
-param registryImageVersion string
-param appSettings array = []
-
-var dockerAppSettings = [
-  { name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE', value: 'false' }
-  { name: 'DOCKER_REGISTRY_SERVER_URL', value: 'https://${registryName}.azurecr.io' }
-  { name: 'DOCKER_REGISTRY_SERVER_USERNAME', value: registryServerUserName }
-  { name: 'DOCKER_REGISTRY_SERVER_PASSWORD', value: registryServerPassword }
-]
-
-resource containerAppService 'Microsoft.Web/sites@2022-03-01' = {
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: name
   location: location
-  kind: 'app'
+  kind: kind
   properties: {
-    serverFarmId: appServicePlanId
-    siteConfig: {
-      linuxFxVersion: 'DOCKER|${registryName}.azurecr.io/${registryImageName}:${registryImageVersion}'
-      appCommandLine: ''
-      appSettings: union(appSettings, dockerAppSettings)
-    }
+    serverFarmId: serverFarmResourceId
+    siteConfig: siteConfig
+    appSettings: appSettingsArray // Use the array directly
+  }
+  identity: {
+    type: 'SystemAssigned'
   }
 }
+
+output id string = webApp.id
