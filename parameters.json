@@ -2,8 +2,20 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "containerRegistryName": { "value": "myACR" },
-    "appServicePlanName": { "value": "myAppServicePlan" },
-    "webAppName": { "value": "myWebApp" }
+    "containerRegistryName": {
+      "value": "myACR"
+    },
+    "appServicePlanName": {
+      "value": "myAppServicePlan"
+    },
+    "webAppName": {
+      "value": "myWebApp"
+    },
+    "containerRegistryImageName": {
+      "value": "myimage"
+    },
+    "containerRegistryImageVersion": {
+      "value": "latest"
+    }
   }
 }
