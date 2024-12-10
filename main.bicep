@@ -37,7 +37,6 @@ module containerRegistry 'modules/containerRegistry.bicep' = {
   params: {
     name: containerRegistryName
     location: location
-    // keyVaultResourceId: keyVault.outputs.keyVaultId
     usernameSecretName: containerRegistryUsernameSecretName
     password0SecretName: containerRegistryPassword0SecretName
     password1SecretName: containerRegistryPassword1SecretName
@@ -49,9 +48,7 @@ param containerName string
 param dockerRegistryImageName string
 param dockerRegistryImageVersion string
 
-// resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01'existing = {
-//   name: keyVaultName
-// }
+
 
 module containerAppService 'modules/webApp.bicep' = {
   name: 'containerAppService-${userAlias}'
@@ -62,7 +59,5 @@ module containerAppService 'modules/webApp.bicep' = {
     registryName: containerRegistryName
     registryImageName: dockerRegistryImageName
     registryImageVersion: dockerRegistryImageVersion
-    // registryServerUserName: keyVaultReference.getSecret(containerRegistryUsernameSecretName)
-    // registryServerPassword: keyVaultReference.getSecret(containerRegistryPassword0SecretName)
   }
 }
