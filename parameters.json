@@ -5,7 +5,7 @@
       "enviromentType": {
         "value": "dev"
       },
-      "dmoneycontainerRegistryName": {
+      "containerRegistryName": {
         "value": "sperilla_containerRegistry"
       },
       "containerRegistryImageName": {

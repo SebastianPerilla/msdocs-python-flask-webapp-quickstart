@@ -1,8 +1,8 @@
-param dmoneyContainerRegistryName string
+param containerRegistryName string
 param location string
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' = {
-  name: dmoneyContainerRegistryName
+  name: containerRegistryName
   location: location
   sku: {
     name: 'Basic'
@@ -11,6 +11,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-pr
     adminUserEnabled: true
   }
 }
+
 
 output loginServer string = containerRegistry.properties.loginServer
 output username string = listCredentials(containerRegistry.id, '2021-12-01-preview').username

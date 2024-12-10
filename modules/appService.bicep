@@ -1,11 +1,11 @@
-param dmoneyAppServicePlanName string
+param appServicePlanName string
 param location string
 param sku object
 param kind string
 param reserved bool
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: dmoneyAppServicePlanName
+  name: appServicePlanName
   location: location
   sku: sku
   kind: kind
