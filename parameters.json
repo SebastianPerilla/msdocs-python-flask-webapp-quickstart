@@ -6,19 +6,19 @@
         "value": "dev"
       },
       "containerRegistryName": {
-        "value": "sperilla_containerRegistry"
+        "value": "sperillaContainerRegistry"
       },
       "containerRegistryImageName": {
-        "value": "sperilla_dockerimg"
+        "value": "sperillaDockerimg"
       },
       "containerRegistryImageVersion": {
         "value": "v1"
       },
       "appServicePlanName": {
-        "value": "sperilla_AppServicePlan"
+        "value": "sperillaAppServicePlan"
       },
       "webAppName": {
-        "value": "sperilla_WebApp"
+        "value": "sperillaWebApp"
       },
       "location": {
         "value": "West Europe"

@@ -27,8 +27,8 @@ jobs:
           --resource-group BCSAI2024-DEVOPS-STUDENTS-A-DEV \
           --template-file main.bicep \
           --parameters \
-            containerRegistryName='sperilla_containerRegistry' \
-            appServicePlanName='sperilla_AppServicePlan' \
-            webAppName='sperilla_WebApp' \
+            containerRegistryName='sperillaContainerRegistry' \
+            appServicePlanName='sperillaAppServicePlan' \
+            webAppName='sperillaWebApp' \
             location='westeurope' \
           --name main-$(date +%s)

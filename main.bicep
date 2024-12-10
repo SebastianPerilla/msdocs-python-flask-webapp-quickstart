@@ -1,8 +1,8 @@
 // Parameters
-param containerRegistryName string = 'sperilla_containerRegistry' // Container Registry Name
-param appServicePlanName string = 'sperilla_AppServicePlan' // App Service Plan Name
+param containerRegistryName string = 'sperillaContainerRegistry' // Container Registry Name
+param appServicePlanName string = 'sperillaAppServicePlan' // App Service Plan Name
 param location string = 'westeurope' // Desired Azure Region
-param webAppName string = 'sperilla_WebApp' // Web App Name
+param webAppName string = 'sperillaWebApp' // Web App Name
 
 // Azure Container Registry Module
 module containerRegistry 'modules/containerRegistry.bicep' = {
