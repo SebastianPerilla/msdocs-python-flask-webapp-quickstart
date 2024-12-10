@@ -13,7 +13,6 @@ module containerRegistry 'modules/containerRegistry.bicep' = {
   }
 }
 
-// Azure App Service Plan Module
 module appServicePlan 'modules/appService.bicep' = {
   name: 'deployAppServicePlan'
   params: {
@@ -21,10 +20,10 @@ module appServicePlan 'modules/appService.bicep' = {
     location: location
     sku: {
       capacity: 1
-      family: 'B'
-      name: 'B1'
-      size: 'B1'
-      tier: 'Basic'
+      family: 'F'
+      name: 'F1' // Change to a different SKU
+      size: 'F1'
+      tier: 'Free'
     }
     kind: 'Linux'
     reserved: true
