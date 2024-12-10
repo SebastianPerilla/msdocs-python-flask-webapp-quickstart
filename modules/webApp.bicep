@@ -11,8 +11,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   kind: kind
   properties: {
     serverFarmId: serverFarmResourceId
-    siteConfig: siteConfig
-    appSettings: appSettingsArray // Use the array directly
+    siteConfig: union(siteConfig, { appSettings: appSettingsArray }) // Combine siteConfig with appSettings
   }
   identity: {
     type: 'SystemAssigned'
