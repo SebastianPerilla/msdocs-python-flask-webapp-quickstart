@@ -14,5 +14,5 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-pr
 
 
 output loginServer string = containerRegistry.properties.loginServer
-output username string = listCredentials(containerRegistry.id, '2021-12-01-preview').username
-output password string = listCredentials(containerRegistry.id, '2021-12-01-preview').passwords[0].value
+
+
