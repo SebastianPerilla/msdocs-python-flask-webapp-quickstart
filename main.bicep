@@ -1,7 +1,7 @@
 // Parameters
 param containerRegistryName string = 'sperilla_containerRegistry' // Container Registry Name
 param appServicePlanName string = 'sperilla_AppServicePlan' // App Service Plan Name
-param location string = 'eastus' // Desired Azure Region
+param location string = 'westeurope' // Desired Azure Region
 param webAppName string = 'sperilla_WebApp' // Web App Name
 
 // Azure Container Registry Module
