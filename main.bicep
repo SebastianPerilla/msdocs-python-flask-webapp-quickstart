@@ -1,5 +1,5 @@
 @description('Deploys an Azure Container Registry')
-module containerRegistry 'modules/containerRegistry.bicep' = {
+module containerRegistry '../modules/containerRegistry.bicep' = {
   name: 'deployContainerRegistry'
   params: {
     name: 'myACR'
@@ -9,7 +9,7 @@ module containerRegistry 'modules/containerRegistry.bicep' = {
 }
 
 @description('Deploys an Azure App Service Plan for Linux')
-module appServicePlan 'modules/appServicePlan.bicep' = {
+module appServicePlan '../modules/appService.bicep' = {
   name: 'deployAppServicePlan'
   params: {
     name: 'myAppServicePlan'
@@ -27,7 +27,7 @@ module appServicePlan 'modules/appServicePlan.bicep' = {
 }
 
 @description('Deploys an Azure Web App for Linux Containers')
-module webApp 'modules/webApp.bicep' = {
+module webApp '../modules/webApp.bicep' = {
   name: 'deployWebApp'
   params: {
     name: 'myWebApp'
