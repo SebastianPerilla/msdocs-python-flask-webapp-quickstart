@@ -35,7 +35,7 @@ jobs:
         run: |
           az deployment group create \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --template-file modules/keyVault.bicep \
+            --template-file keyVault.bicep \
             --parameters \
               name=${{ env.KEY_VAULT_NAME }} \
               location=${{ env.LOCATION }} \
@@ -45,6 +45,15 @@ jobs:
                 'roleDefinitionIdOrName': 'Key Vault Secrets User', \
                 'principalType': 'ServicePrincipal' \
               }]" \
+              accessPolicies="[{ \
+                'tenantId': '$(az account show --query tenantId -o tsv)', \
+                'objectId': '7200f83e-ec45-4915-8c52-fb94147cfe5a', \
+                'permissions': { \
+                  'keys': ['get', 'list'], \
+                  'secrets': ['get', 'list', 'set'], \
+                  'certificates': [] \
+                } \
+              }]"
 
   deploy-infra:
     runs-on: ubuntu-latest

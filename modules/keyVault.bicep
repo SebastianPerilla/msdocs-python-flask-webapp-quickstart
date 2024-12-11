@@ -10,6 +10,18 @@ param roleAssignments array = [
   }
 ]
 
+param accessPolicies array = [
+  {
+    tenantId: subscription().tenantId
+    objectId: '7200f83e-ec45-4915-8c52-fb94147cfe5a'
+    permissions: {
+      keys: ['get', 'list']
+      secrets: ['get', 'list', 'set']
+      certificates: []
+    }
+  }
+]
+
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: name
   location: location
@@ -20,16 +32,17 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
       name: 'standard'
       family: 'A'
     }
+    accessPolicies: accessPolicies
   }
 }
 
 resource keyVault_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for roleAssignment in roleAssignments: {
-    name: guid(keyVault.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
+  for (roleAssignment, index) in (formattedRoleAssignments ?? []): {
+    name: roleAssignment.?name ?? guid(keyVault.id, roleAssignment.principalId, roleAssignment.roleDefinitionId)
     properties: {
-      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleAssignment.roleDefinitionIdOrName)
+      roleDefinitionId: roleAssignment.roleDefinitionId
       principalId: roleAssignment.principalId
-      principalType: roleAssignment.principalType
+      principalType: roleAssignment.?principalType
     }
     scope: keyVault
   }
