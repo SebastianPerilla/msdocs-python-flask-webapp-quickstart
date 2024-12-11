@@ -1,12 +1,23 @@
-name: Deploy Azure Infrastructure
+name: Deploy Azure Infrastructure and Application
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on push to the main branch
+
+env:
+  RESOURCE_GROUP: BCSAI2024-DEVOPS-STUDENTS-A-DEV
+  LOCATION: westeurope
+  CONTAINER_REGISTRY_NAME: sperillaContainerRegistry
+  APP_SERVICE_PLAN_NAME: sperillaAppServicePlan
+  WEB_APP_NAME: sperillaWebApp
+  KEY_VAULT_NAME: sperillaKeyVault
+  KEY_VAULT_SECRET_NAME_ACR_USERNAME: acr-username
+  KEY_VAULT_SECRET_NAME_ACR_PASSWORD: acr-password1
+  IMAGE_BASE_NAME: sperilladockerimg
 
 jobs:
-  deploy:
+  deploy-and-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,54 +37,22 @@ jobs:
         az deployment group create \
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --template-file key-vault.bicep \
-          --parameters name='sperillaKeyVault' location='westeurope'
+          --parameters name=${{ env.KEY_VAULT_NAME }} location=${{ env.LOCATION }}
 
-    # Step 4: Deploy Main Bicep
+    # Step 4: Deploy Main Infrastructure
     - name: Deploy Main Infrastructure
       run: |
         az deployment group create \
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --template-file main.bicep \
-          --parameters location='westeurope' \
-                       containerRegistryName='sperillaContainerRegistry' \
-                       appServicePlanName='sperillaAppServicePlan' \
-                       webAppName='sperillaWebApp' \
-                       keyVaultName='sperillaKeyVault'
+          --parameters \
+            location=${{ env.LOCATION }} \
+            containerRegistryName=${{ env.CONTAINER_REGISTRY_NAME }} \
+            appServicePlanName=${{ env.APP_SERVICE_PLAN_NAME }} \
+            webAppName=${{ env.WEB_APP_NAME }} \
+            keyVaultName=${{ env.KEY_VAULT_NAME }}
 
-
-name: Build and Deploy Application
-
-on:
-  push:
-    branches:
-      - main
-
-env:
-  RESOURCE_GROUP: BCSAI2024-DEVOPS-STUDENTS-A-DEV
-  REGISTRY_NAME: sperillacr
-  IMAGE_BASE_NAME: sperilladockerimg
-  WEB_APP_NAME: sperillaWebApp
-  LOCATION: westeurope
-  KEY_VAULT_NAME: sperillaKeyVault
-  KEY_VAULT_SECRET_NAME_ACR_USERNAME: acr-username
-  KEY_VAULT_SECRET_NAME_ACR_PASSWORD: acr-password1
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    # Step 1: Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    # Step 2: Log in to Azure
-    - name: Log in to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    # Step 3: Fetch ACR credentials from Key Vault
+    # Step 5: Fetch ACR credentials from Key Vault
     - name: Get Docker registry credentials from Azure Key Vault
       uses: azure/CLI@v1
       with:
@@ -81,7 +60,7 @@ jobs:
           echo "REGISTRY_USERNAME=$(az keyvault secret show --name ${{ env.KEY_VAULT_SECRET_NAME_ACR_USERNAME }} --vault-name ${{ env.KEY_VAULT_NAME }} --query value -o tsv)" >> $GITHUB_ENV
           echo "REGISTRY_PASSWORD=$(az keyvault secret show --name ${{ env.KEY_VAULT_SECRET_NAME_ACR_PASSWORD }} --vault-name ${{ env.KEY_VAULT_NAME }} --query value -o tsv)" >> $GITHUB_ENV
 
-    # Step 4: Log in to Azure Container Registry
+    # Step 6: Log in to Azure Container Registry
     - name: Log in to Azure Container Registry
       uses: azure/docker-login@v1
       with:
@@ -89,14 +68,14 @@ jobs:
         username: ${{ env.REGISTRY_USERNAME }}
         password: ${{ env.REGISTRY_PASSWORD }}
 
-    # Step 5: Build and push Docker image
+    # Step 7: Build and push Docker image
     - name: Build and push image
-      working-directory: ./app
+      working-directory: ./app  # Adjust the path to your app's Dockerfile if needed
       run: |
         docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
         docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
 
-    # Step 6: Deploy to Azure Web App
+    # Step 8: Deploy to Azure Web App
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v3
       with:
