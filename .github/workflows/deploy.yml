@@ -1,9 +1,9 @@
-name: Secure Deploy Azure Infrastructure and Application
+name: Deploy Azure Infrastructure and Application
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on push to the main branch
 
 env:
   RESOURCE_GROUP: BCSAI2024-DEVOPS-STUDENTS-A-DEV
@@ -14,78 +14,109 @@ env:
   KEY_VAULT_NAME: sperillaKeyVault
   KEY_VAULT_SECRET_NAME_ACR_USERNAME: acr-username
   KEY_VAULT_SECRET_NAME_ACR_PASSWORD: acr-password1
-  IMAGE_BASE_NAME: sperillaDockerimg
+  IMAGE_BASE_NAME: sperilladockerimg
 
 jobs:
-  deploy-and-build:
+  build-infra:
     runs-on: ubuntu-latest
-
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # Step 2: Log in to Azure
-    - name: Log in to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Step 2: Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Step 3: Deploy Key Vault
-    - name: Deploy Key Vault
-      run: |
-        az deployment group create \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --template-file key-vault.bicep \
-          --parameters \
-            name=${{ env.KEY_VAULT_NAME }} \
-            location=${{ env.LOCATION }} \
-            enableVaultForDeployment=true \
-            roleAssignments="[{ \
-              'principalId': '7200f83e-ec45-4915-8c52-fb94147cfe5a', \
-              'roleDefinitionIdOrName': 'Key Vault Secrets User', \
-              'principalType': 'ServicePrincipal' \
-            }]"
+      # Step 3: Deploy Key Vault
+      - name: Deploy Key Vault
+        run: |
+          az deployment group create \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --template-file key-vault.bicep \
+            --parameters \
+              name=${{ env.KEY_VAULT_NAME }} \
+              location=${{ env.LOCATION }} \
+              enableVaultForDeployment=true \
+              roleAssignments="[{ \
+                'principalId': '7200f83e-ec45-4915-8c52-fb94147cfe5a', \
+                'roleDefinitionIdOrName': 'Key Vault Secrets User', \
+                'principalType': 'ServicePrincipal' \
+              }]"
 
-    # Step 4: Deploy Main Infrastructure
-    - name: Deploy Main Infrastructure
-      run: |
-        az deployment group create \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --template-file main.bicep \
-          --parameters \
-            location=${{ env.LOCATION }} \
-            containerRegistryName=${{ env.CONTAINER_REGISTRY_NAME }} \
-            appServicePlanName=${{ env.APP_SERVICE_PLAN_NAME }} \
-            webAppName=${{ env.WEB_APP_NAME }} \
-            keyVaultName=${{ env.KEY_VAULT_NAME }}
+  deploy-infra:
+    runs-on: ubuntu-latest
+    needs: build-infra
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # Step 5: Fetch ACR credentials from Key Vault
-    - name: Get Docker registry credentials from Azure Key Vault
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
-          echo "REGISTRY_USERNAME=$(az keyvault secret show --name ${{ env.KEY_VAULT_SECRET_NAME_ACR_USERNAME }} --vault-name ${{ env.KEY_VAULT_NAME }} --query value -o tsv)" >> $GITHUB_ENV
-          echo "REGISTRY_PASSWORD=$(az keyvault secret show --name ${{ env.KEY_VAULT_SECRET_NAME_ACR_PASSWORD }} --vault-name ${{ env.KEY_VAULT_NAME }} --query value -o tsv)" >> $GITHUB_ENV
+      # Step 2: Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Step 6: Log in to Azure Container Registry
-    - name: Log in to Azure Container Registry
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-        username: ${{ env.REGISTRY_USERNAME }}
-        password: ${{ env.REGISTRY_PASSWORD }}
+      # Step 3: Deploy Main Infrastructure
+      - name: Deploy Main Infrastructure
+        run: |
+          az deployment group create \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --template-file main.bicep \
+            --parameters \
+              location=${{ env.LOCATION }} \
+              containerRegistryName=${{ env.CONTAINER_REGISTRY_NAME }} \
+              appServicePlanName=${{ env.APP_SERVICE_PLAN_NAME }} \
+              webAppName=${{ env.WEB_APP_NAME }} \
+              keyVaultName=${{ env.KEY_VAULT_NAME }}
 
-    # Step 7: Build and push Docker image
-    - name: Build and push image
-      working-directory: ./app  # Adjust the path to your app's Dockerfile if needed
-      run: |
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
+  build-push-image:
+    runs-on: ubuntu-latest
+    needs: deploy-infra
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # Step 8: Deploy to Azure Web App
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v3
-      with:
-        app-name: ${{ env.WEB_APP_NAME }}
-        images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
+      # Step 2: Fetch ACR credentials from Key Vault
+      - name: Get Docker registry credentials from Azure Key Vault
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "REGISTRY_USERNAME=$(az keyvault secret show --name ${{ env.KEY_VAULT_SECRET_NAME_ACR_USERNAME }} --vault-name ${{ env.KEY_VAULT_NAME }} --query value -o tsv)" >> $GITHUB_ENV
+            echo "REGISTRY_PASSWORD=$(az keyvault secret show --name ${{ env.KEY_VAULT_SECRET_NAME_ACR_PASSWORD }} --vault-name ${{ env.KEY_VAULT_NAME }} --query value -o tsv)" >> $GITHUB_ENV
+
+      # Step 3: Log in to Azure Container Registry
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+
+      # Step 4: Build and push Docker image
+      - name: Build and push image
+        working-directory: ./app  # Adjust the path to your app's Dockerfile if needed
+        run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
+
+  deploy-container:
+    runs-on: ubuntu-latest
+    needs: build-push-image
+    steps:
+      # Step 1: Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 2: Deploy to Azure Web App
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.WEB_APP_NAME }}
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_BASE_NAME }}:latest
