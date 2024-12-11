@@ -35,7 +35,7 @@ jobs:
         run: |
           az deployment group create \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --template-file key-vault.bicep \
+            --template-file keyVault.bicep \
             --parameters \
               name=${{ env.KEY_VAULT_NAME }} \
               location=${{ env.LOCATION }} \
