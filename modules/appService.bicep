@@ -4,6 +4,7 @@ param sku object
 param kind string
 param reserved bool
 
+// Deploy Azure App Service Plan
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName
   location: location
@@ -14,5 +15,5 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   }
 }
 
+// Output the App Service Plan ID
 output id string = appServicePlan.id
-

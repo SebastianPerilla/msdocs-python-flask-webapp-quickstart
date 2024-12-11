@@ -1,28 +1,24 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2020-10-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "enviromentType": {
-        "value": "dev"
-      },
-      "containerRegistryName": {
-        "value": "sperillaContainerRegistry"
-      },
-      "containerRegistryImageName": {
-        "value": "sperillaDockerimg"
-      },
-      "containerRegistryImageVersion": {
-        "value": "v1"
-      },
-      "appServicePlanName": {
-        "value": "sperillaAppServicePlan"
-      },
-      "webAppName": {
-        "value": "sperillaWebApp"
-      },
-      "location": {
-        "value": "westeurope"
-      }
+  "$schema": "https://schema.management.azure.com/schemas/2020-10-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "containerRegistryName": {
+      "value": "sperillaContainerRegistry"
+    },
+    "containerRegistryImageName": {
+      "value": "sperillaDockerimg"
+    },
+    "containerRegistryImageVersion": {
+      "value": "latest"
+    },
+    "appServicePlanName": {
+      "value": "sperillaAppServicePlan"
+    },
+    "webAppName": {
+      "value": "sperillaWebApp"
+    },
+    "location": {
+      "value": "westeurope"
     }
   }
-  
+}

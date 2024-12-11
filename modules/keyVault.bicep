@@ -10,21 +10,6 @@ param roleAssignments array = [
   }
 ]
 
-var builtInRoleNames = {
-  'Key Vault Secrets User': subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
-}
-
-var formattedRoleAssignments = [
-  for (roleAssignment, index) in (roleAssignments ?? []): union(roleAssignment, {
-    roleDefinitionId: builtInRoleNames[?roleAssignment.roleDefinitionIdOrName] ?? (contains(
-        roleAssignment.roleDefinitionIdOrName,
-        '/providers/Microsoft.Authorization/roleDefinitions/'
-      )
-      ? roleAssignment.roleDefinitionIdOrName
-      : subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleAssignment.roleDefinitionIdOrName))
-  })
-]
-
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: name
   location: location
@@ -39,12 +24,12 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 }
 
 resource keyVault_roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for (roleAssignment, index) in (formattedRoleAssignments ?? []): {
-    name: roleAssignment.?name ?? guid(keyVault.id, roleAssignment.principalId, roleAssignment.roleDefinitionId)
+  for roleAssignment in roleAssignments: {
+    name: guid(keyVault.id, roleAssignment.principalId, roleAssignment.roleDefinitionIdOrName)
     properties: {
-      roleDefinitionId: roleAssignment.roleDefinitionId
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleAssignment.roleDefinitionIdOrName)
       principalId: roleAssignment.principalId
-      principalType: roleAssignment.?principalType
+      principalType: roleAssignment.principalType
     }
     scope: keyVault
   }

@@ -8,6 +8,7 @@ param adminCredentialsKeyVaultSecretUserPassword1 string
 @secure()
 param adminCredentialsKeyVaultSecretUserPassword2 string
 
+// Deploy Azure Container Registry
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' = {
   name: containerRegistryName
   location: location

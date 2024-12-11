@@ -3,7 +3,7 @@ name: Secure Deploy Azure Infrastructure and Application
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main
 
 env:
   RESOURCE_GROUP: BCSAI2024-DEVOPS-STUDENTS-A-DEV
@@ -14,7 +14,7 @@ env:
   KEY_VAULT_NAME: sperillaKeyVault
   KEY_VAULT_SECRET_NAME_ACR_USERNAME: acr-username
   KEY_VAULT_SECRET_NAME_ACR_PASSWORD: acr-password1
-  IMAGE_BASE_NAME: sperilladockerimg
+  IMAGE_BASE_NAME: sperillaDockerimg
 
 jobs:
   deploy-and-build:

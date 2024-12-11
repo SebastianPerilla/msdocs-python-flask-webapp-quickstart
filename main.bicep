@@ -1,9 +1,9 @@
 // Parameters
-param containerRegistryName string = 'sperillaContainerRegistry' // Container Registry Name
-param appServicePlanName string = 'sperillaAppServicePlan' // App Service Plan Name
-param location string = 'westeurope' // Desired Azure Region
-param webAppName string = 'sperillaWebApp' // Web App Name
-param keyVaultName string = 'sperillaKeyVault' // Key Vault Name
+param containerRegistryName string
+param appServicePlanName string
+param location string
+param webAppName string
+param keyVaultName string
 
 // Key Vault Reference
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
@@ -31,10 +31,10 @@ module appServicePlan 'modules/appService.bicep' = {
     location: location
     sku: {
       capacity: 1
-      family: 'F'
-      name: 'F1' // Using Free SKU
-      size: 'F1'
-      tier: 'Free'
+      family: 'B'
+      name: 'B1'
+      size: 'B1'
+      tier: 'Basic'
     }
     kind: 'Linux'
     reserved: true
@@ -54,7 +54,7 @@ module webApp 'modules/webApp.bicep' = {
     kind: 'app'
     serverFarmResourceId: appServicePlan.outputs.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|${containerRegistry.outputs.loginServer}/sperillaimage:latest'
+      linuxFxVersion: 'DOCKER|${containerRegistry.outputs.loginServer}/${parameters.containerRegistryImageName}:${parameters.containerRegistryImageVersion}'
     }
     appSettingsArray: [
       {

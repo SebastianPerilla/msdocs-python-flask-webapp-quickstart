@@ -28,9 +28,10 @@ var dockerAppSettings = [
   }
 ]
 
-// Combine siteConfig app settings with the existing app settings
+// Combine siteConfig app settings with the additional app settings
 var finalAppSettings = union(appSettingsArray, dockerAppSettings)
 
+// Deploy Azure Web App
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: name
   location: location
@@ -44,4 +45,5 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
+// Output the Web App ID
 output id string = webApp.id
