@@ -3,6 +3,12 @@ param containerRegistryName string = 'sperillaContainerRegistry' // Container Re
 param appServicePlanName string = 'sperillaAppServicePlan' // App Service Plan Name
 param location string = 'westeurope' // Desired Azure Region
 param webAppName string = 'sperillaWebApp' // Web App Name
+param keyVaultName string = 'sperillaKeyVault' // Key Vault Name
+
+// Key Vault Reference
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  name: keyVaultName
+}
 
 // Azure Container Registry Module
 module containerRegistry 'modules/containerRegistry.bicep' = {
@@ -10,9 +16,14 @@ module containerRegistry 'modules/containerRegistry.bicep' = {
   params: {
     containerRegistryName: containerRegistryName
     location: location
+    adminCredentialsKeyVaultResourceId: keyVault.id
+    adminCredentialsKeyVaultSecretUserName: 'acr-username'
+    adminCredentialsKeyVaultSecretUserPassword1: 'acr-password1'
+    adminCredentialsKeyVaultSecretUserPassword2: 'acr-password2'
   }
 }
 
+// App Service Plan Module
 module appServicePlan 'modules/appService.bicep' = {
   name: 'deployAppServicePlan'
   params: {
@@ -21,7 +32,7 @@ module appServicePlan 'modules/appService.bicep' = {
     sku: {
       capacity: 1
       family: 'F'
-      name: 'F1' // Change to a different SKU
+      name: 'F1' // Using Free SKU
       size: 'F1'
       tier: 'Free'
     }
@@ -30,35 +41,29 @@ module appServicePlan 'modules/appService.bicep' = {
   }
 }
 
-// Pass appSettings as an array
+// Web App Module
 module webApp 'modules/webApp.bicep' = {
-  name: 'deploywebApp'
+  name: 'deployWebApp'
+  dependsOn: [
+    containerRegistry
+    keyVault
+  ]
   params: {
     name: webAppName
     location: location
     kind: 'app'
     serverFarmResourceId: appServicePlan.outputs.id
     siteConfig: {
-      linuxFxVersion: 'DOCKER|${containerRegistry.outputs.loginServer}/sperilla_dockerimg:latest'
-      appCommandLine: ''
+      linuxFxVersion: 'DOCKER|${containerRegistry.outputs.loginServer}/sperillaimage:latest'
     }
     appSettingsArray: [
       {
         name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
         value: 'false'
       }
-      {
-        name: 'DOCKER_REGISTRY_SERVER_URL'
-        value: containerRegistry.outputs.loginServer
-      }
-      {
-        name: 'DOCKER_REGISTRY_SERVER_USERNAME'
-        value: containerRegistry.outputs.username
-      }
-      {
-        name: 'DOCKER_REGISTRY_SERVER_PASSWORD'
-        value: containerRegistry.outputs.password
-      }
     ]
+    dockerRegistryServerUrl: 'https://${containerRegistry.outputs.loginServer}'
+    dockerRegistryServerUserName: keyVault.getSecret('acr-username')
+    dockerRegistryServerPassword: keyVault.getSecret('acr-password1')
   }
 }
