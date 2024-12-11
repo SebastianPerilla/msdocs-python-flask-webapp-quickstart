@@ -1,4 +1,4 @@
-name: Deploy Azure Infrastructure and Application
+name: Secure Deploy Azure Infrastructure and Application
 
 on:
   push:
@@ -37,7 +37,15 @@ jobs:
         az deployment group create \
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --template-file key-vault.bicep \
-          --parameters name=${{ env.KEY_VAULT_NAME }} location=${{ env.LOCATION }}
+          --parameters \
+            name=${{ env.KEY_VAULT_NAME }} \
+            location=${{ env.LOCATION }} \
+            enableVaultForDeployment=true \
+            roleAssignments="[{ \
+              'principalId': '7200f83e-ec45-4915-8c52-fb94147cfe5a', \
+              'roleDefinitionIdOrName': 'Key Vault Secrets User', \
+              'principalType': 'ServicePrincipal' \
+            }]"
 
     # Step 4: Deploy Main Infrastructure
     - name: Deploy Main Infrastructure
