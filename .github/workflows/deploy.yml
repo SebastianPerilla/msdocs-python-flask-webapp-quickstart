@@ -27,7 +27,7 @@ jobs:
           --resource-group BCSAI2024-DEVOPS-STUDENTS-A-DEV \
           --template-file main.bicep \
           --parameters \
-            containerRegistryName='sperillaContainerRegistry' \
+            containerRegistryName='sperillacr' \ # Ensure this matches the registry name in Azure
             appServicePlanName='sperillaAppServicePlan' \
             webAppName='sperillaWebApp' \
             location='westeurope' \
@@ -59,16 +59,16 @@ jobs:
     # Step 4: Set image version
     - name: Set image version
       id: image-version
-      run: echo "::set-output name=version::$(echo ${GITHUB_REF#refs/heads/})-$(date +'%Y.%m.%d.%H.%M')"
+      run: echo "version=$(date +'%Y.%m.%d.%H.%M')" >> $GITHUB_ENV
 
     # Step 5: Build and push Docker image
     - name: Build and push image
       working-directory: ./app # Adjust the path to your Dockerfile if needed
       run: |
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:${{ steps.image-version.outputs.version }}
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:${{ github.ref_name }}-latest
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:${{ steps.image-version.outputs.version }}
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:${{ github.ref_name }}-latest
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:${{ env.version }}
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:latest
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:${{ env.version }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:latest
 
   deploy-webapp:
     runs-on: ubuntu-latest
@@ -86,4 +86,4 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: sperillaWebApp
-        images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:${{ github.ref_name }}-latest
+        images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/sperillaimage:latest
