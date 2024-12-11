@@ -7,8 +7,8 @@ on:
 
 env:
   RESOURCE_GROUP: BCSAI2024-DEVOPS-STUDENTS-A-DEV
-  REGISTRY_NAME: sperillacr
-  IMAGE_BASE_NAME: sperillaimage
+  REGISTRY_NAME: sperillaContainerRegistry
+  IMAGE_BASE_NAME: sperillaDockerimg
   WEB_APP_NAME: sperillaWebApp
   LOCATION: westeurope
 
